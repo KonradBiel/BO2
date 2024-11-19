@@ -1,0 +1,1 @@
+GENRES_LIST = ["placeholder1", "placeholder2", "placeholder3"]
