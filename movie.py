@@ -1,6 +1,21 @@
 from genres import GENRES_LIST
 import numpy as np
 
+data = []
+naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena"]
+with open('Baza_filmow_v2.csv', 'rt') as file:
+    for line in file:
+        record = line.rstrip().split(';')
+        dictionary = {}
+        for klucz, value in zip(naglowki, record):
+            dictionary[klucz] = value
+        dane.append(dictionary)
+print(data)
+
+
+
+
+
 class Movie:
     def __init__(self, title, rating, genres):
         self.title = title
