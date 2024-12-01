@@ -26,6 +26,7 @@ class Movie:
             genres = genres[:3]
         self.genres_vec = np.zeros(len(GENRES_LIST))
         match len(genres):
+            
             case 0:
                 raise Exception("Movie doesn't have any genres")
             case 1:
@@ -53,9 +54,9 @@ class Film_base:
         with open(f'{self.file_name}', 'rt') as file:
             for line in file:
                 film = line.rstrip().split(';')
-                self.base.append(Movie[film[0],film[5],film[1:3],film[4]])
+                self.base.append(Movie(film[0], float(film[5]), film[1:4], int(film[4])))
                 
-    set_film_base()
+    #set_film_base()
 
 
 
