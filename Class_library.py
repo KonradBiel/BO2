@@ -3,27 +3,27 @@ import numpy as np
 
 
 # data = []
-# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena","indeks"]
+# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena","index"]
 # with open('Baza_filmow_v2.csv', 'rt') as file:
 #     for line in file:
 #         record = line.rstrip().split(';')
 #         data.append(record)
 # print(data)
 
-
-
-
-class Movie:
-    def __init__(self, title, rating, genres, watch_time):
+class Film:
+    def __init__(self, title, genres, watch_time, rating, film_id):
         self.title = title
         self.rating = rating
         self.genres = genres
         self.watch_time = watch_time
+        self.film_id = film_id
         self.score_cache = None
         self.preference_reference = None
         self.create_genres_vector(self.genres)
 
     def create_genres_vector(self, genres):
+
+        genres = [genre for genre in genres if genre != ""]
         if len(genres) > 3:
             genres = genres[:3]
         self.genres_vec = np.zeros(len(ALL_GENRES))
@@ -62,3 +62,59 @@ class Movie:
             else:
                 self.score_cache = self.__calculate_preference_correspondence(preference_vector)
         return self.score_cache
+
+
+class Film_base:
+    def __init__(self, file_name):
+        self.films = self.load_films(file_name)  
+    
+    def load_films(self, file_name):
+        films = []
+        with open(file_name, 'rt', encoding='utf-8') as file:
+            for line in file:
+                film_data = line.rstrip().split(';')
+                film_id = int(film_data[6]) 
+                title = film_data[0]
+                rating = film_data[5]
+                watch_time = film_data[4]
+                genres = film_data[1:4]
+
+                films.append(Film(title, genres, watch_time, rating, film_id))
+        return films
+
+class Platform:
+    def __init__(self, title, film_base, price, index, movie_indices):
+        self.title = title
+        self.films = [film for film in film_base if film.film_id in movie_indices]
+        self.price = price
+        self.index = index
+    
+    def __str__(self):
+        return f"Platforma: {self.title}, Cena: {self.price}, Filmy: {[film.film_id for film in self.films]}"
+    
+class PlatformBase:
+    def __init__(self, file_name, film_base):
+        self.file_name = file_name
+        self.platforms = []
+        self.set_platforms(film_base)
+
+    def set_platforms(self, film_base):
+        with open(self.file_name, 'rt', encoding='utf-8') as file:
+            for line in file:
+                platform_data = line.rstrip().split(';')
+                title = platform_data[0]
+                movie_indices_range = platform_data[1].strip('[]').split(':')
+                movie_indices = list(range(int(movie_indices_range[0]), int(movie_indices_range[1]) + 1))
+                price = int(platform_data[2])
+                index = int(platform_data[3])
+
+                
+                platform = Platform(title, film_base.films, price, index, movie_indices)
+                self.platforms.append(platform)
+    
+    def __iter__(self):
+        return iter(self.platforms)
+
+class User:
+    def __init__(self):
+        None
