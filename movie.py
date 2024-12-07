@@ -47,33 +47,10 @@ class Movie:
                 self.genres_vec[ind2] = 2/np.sqrt(21)
                 self.genres_vec[ind3] = 1/np.sqrt(21)
 
-<<<<<<< HEAD
-class Film_base:
-    def __init__(self, file_name):
-        self.file_name = file_name
-        self.base =[]
-
-    def set_film_base(self):
-        with open(f'{self.file_name}', 'rt') as file:
-            for line in file:
-                film = line.rstrip().split(';')
-                self.base.append(Movie(film[0], float(film[5]), film[1:4], int(film[4])))
-                
-    #set_film_base()
-
-
-
-class Platform:
-    def __init__(self, title, film_base, price):
-        self.title = title
-        self.film_base  = film_base 
-        self.price = price
-=======
     def __calculate_preference_correspondence(self, preference_vector):
         if len(preference_vector) != len(self.genres_vec):
             raise Exception("length of preference_vector doesn't match the length of genres_vec of the movie")
         return np.dot(self.genres_vec, preference_vector)
->>>>>>> main
     
     def get_movie_score(self, preference_vector):
         if self.score_cache is None or preference_vector is not self.preference_reference:
