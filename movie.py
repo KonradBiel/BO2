@@ -3,7 +3,7 @@ import numpy as np
 
 
 # data = []
-# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena"]
+# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena","indeks"]
 # with open('Baza_filmow_v2.csv', 'rt') as file:
 #     for line in file:
 #         record = line.rstrip().split(';')
