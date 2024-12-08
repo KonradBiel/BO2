@@ -1,7 +1,11 @@
 import random
 
+NUM_Plamforms = 8 # liczba platform
+MUTATION_RATE = 0.1 # szansa na mutacje w zakresie od 0-1
+GENERATIONS = 50 # Liczba generacji
+
 def cost_function(platforms, preference_vector):
-    cost_fun_val = 0;
+    cost_fun_val = 0
     for platform in platforms:
         cost_fun_val += platform.calculate_score(preference_vector)
     return cost_fun_val
@@ -25,6 +29,26 @@ class Algorithm:
                 platforms.append(self.platforms[i])
             number = number//2
         return platforms
+    
+    def crossover(self, parent1, parent2):
+        crossover_point = random.randint(1, NUM_Plamforms - 1)
+        return parent1[:crossover_point] + parent2[crossover_point:]
+    
+    def mutate(individual):
+        muted_individual = []
+        for i in individual:
+            if random.random() < MUTATION_RATE:
+                muted_individual.append(1 - i)
+            else:
+                muted_individual.append(i)
+        return muted_individual
+    
+    def evolotionary_algoritm(self, preference_vector):
+        population = self.generate_initial_population # stworzenie pierwszej generacji
+
+        for generation in range(GENERATIONS):
+            costs = [cost_function(population, preference_vector)]
+
 
 
 class Solution():
