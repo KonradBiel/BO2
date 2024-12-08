@@ -88,9 +88,20 @@ class Platform:
         self.films = [film for film in film_base if film.film_id in movie_indices]
         self.price = price
         self.index = index
+
+    def calculate_score(self, preference_vector):
+        if self.score_cache is None or preference_vector is not self.preference_reference:
+            self.preference_reference = preference_vector;
+            score = 0;
+            for movie in self.film_base:
+                score += movie.get_movie_score(preference_vector)
+            self.score_cache = score
+        return self.score_cache    
     
     def __str__(self):
         return f"Platforma: {self.title}, Cena: {self.price}, Filmy: {[film.film_id for film in self.films]}"
+    
+
     
 class PlatformBase:
     def __init__(self, file_name, film_base):
