@@ -13,7 +13,7 @@ import numpy as np
 class Film:
     def __init__(self, title, genres, watch_time, rating, film_id):
         self.title = title
-        self.rating = rating
+        self.rating = int(rating)
         self.genres = genres
         self.watch_time = watch_time
         self.film_id = film_id
@@ -88,6 +88,17 @@ class Platform:
         self.films = [film for film in film_base if film.film_id in movie_indices]
         self.price = price
         self.index = index
+        self.score_cache = None;
+        self.preference_reference = None;
+    
+    def calculate_score(self, preference_vector):
+        if self.score_cache is None or preference_vector is not self.preference_reference:
+            self.preference_reference = preference_vector;
+            score = 0;
+            for film in self.films:
+                score += film.get_movie_score(preference_vector)
+            self.score_cache = score
+        return self.score_cache
     
     def __str__(self):
         return f"Platforma: {self.title}, Cena: {self.price}, Filmy: {[film.film_id for film in self.films]}"
@@ -114,6 +125,15 @@ class PlatformBase:
     
     def __iter__(self):
         return iter(self.platforms)
+    
+    def __str__(self):
+        return f"PlatformBase: {[x.title for x in self.platforms]}"
+    
+    def __getitem__(self, index):
+        return self.platforms[index]
+    
+    def __len__(self):
+        return len(self.platforms)
 
 class User:
     def __init__(self):

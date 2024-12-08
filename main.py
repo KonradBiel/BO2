@@ -1,17 +1,6 @@
 from Class_library import Platform, Film_base, PlatformBase
 import numpy as np
-
-# [WORK IN PROGRESS]
-# def cost_function(platforms, preference_vector, duplicates):
-#     cost_fun_val = 0;
-#     for platform in platforms:
-#         cost_fun_val += platform.calculate_score(preference_vector)
-#     for i, platform1 in enumerate(platforms):
-#         for platform2 in platforms[i+1:]:
-#             duplicates.get_duplicate_score(platform1, platform2, preference_vector)
-
-
-
+from algorithm import cost_function, Algorithm
 
 #films_A = Film_base('Baza_filmow_v2.csv')
 #
@@ -34,3 +23,18 @@ platform_base = PlatformBase('Baza_platform.csv', films_A)
 
 for platform in platform_base:
     print(platform)
+
+print(platform_base)
+
+preference_vector2 = np.zeros(21)
+preference_vector2[1] = 1
+print(cost_function([platform_base[0], platform_base[4]], preference_vector2))
+print(cost_function([platform_base[0], platform_base[4], platform_base[5]], preference_vector2))
+
+alg = Algorithm(platform_base, preference_vector2)
+alg.generate_initial_population(6)
+print("[")
+for el in alg.population:
+    print(el)
+print("]")
+
