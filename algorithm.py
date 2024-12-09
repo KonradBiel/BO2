@@ -3,7 +3,7 @@ import random
 NUM_Plamforms = 8 # liczba platform
 MUTATION_RATE = 0.1 # szansa na mutacje w zakresie od 0-1
 GENERATIONS = 50 # Liczba generacji
-population_size = 1
+population_size = 5 # liczba osobników w jednej populacji
 
 def cost_function(platforms, preference_vector):
     cost_fun_val = 0
@@ -15,13 +15,18 @@ class Algorithm:
     def __init__(self, platforms, preference_vector):
         self.platforms = platforms
         self.platforms_len = len(platforms)
-        self.population = [0] * NUM_Plamforms
+        self.population = []
         self.preference_vector = preference_vector
+        self.individual_with_lowest_cost = []
 
-    def generate_initial_population(self, population_size = population_size):
-        indices = random.sample(range(8), population_size)
-        for idx in indices:
-            self.population[idx] = 1
+    def generate_initial_population(self):
+        for _ in range(population_size):
+            k = random.randint(1, NUM_Plamforms)
+            indices = random.sample(range(NUM_Plamforms), k)
+            individual = [0] * NUM_Plamforms
+            for idx in indices:
+                individual[idx] = 1
+            self.population.append(individual)
         
 
     def get_list_of_platforms_from_a_binary(self, number = population_size):
@@ -47,17 +52,20 @@ class Algorithm:
     
     def evolotionary_algoritm(self, preference_vector):
         self.generate_initial_population(population_size) # stworzenie pierwszej generacji
-        population = self.population
-        return population
     
     def print_platform_names(self, platform_base):
-        platform_names = []
+        population_names = []
 
-        for i in range(len(self.population)):
-            if self.population[i] == 1:
-                platform_names.append(platform_base[i].title)
+        for individual in self.population:
+            platform_names = []
+            print(individual)
+            for i in range(len(individual)):
+                if individual[i] == 1:
+                    platform_names.append(platform_base[i].title)
+            population_names.append(platform_names)
+        print(population_names)
 
-        print(platform_names)
+        
         
 
 
