@@ -2,7 +2,7 @@ import random
 
 NUM_Plamforms = 8 # liczba platform
 MUTATION_RATE = 0.1 # szansa na mutacje w zakresie od 0-1
-GENERATIONS = 50 # Liczba generacji
+GENERATIONS = 15 # Liczba generacji
 population_size = 5 # liczba osobników w jednej populacji
 
 def cost_function(platforms, preference_vector):
@@ -11,6 +11,8 @@ def cost_function(platforms, preference_vector):
         cost_fun_val += platform.calculate_score(preference_vector)
     return cost_fun_val
 
+import random
+
 class Algorithm:
     def __init__(self, platforms, preference_vector):
         self.platforms = platforms
@@ -18,56 +20,56 @@ class Algorithm:
         self.population = []
         self.preference_vector = preference_vector
         self.individual_with_lowest_cost = []
-        self.cost = 99999
+        self.cost = float('inf')
 
     def __generate_initial_population(self):
         for _ in range(population_size):
-            k = random.randint(1, NUM_Plamforms)
-            indices = random.sample(range(NUM_Plamforms), k)
-            individual = [0] * NUM_Plamforms
+            k = random.randint(1, self.platforms_len)
+            indices = random.sample(range(self.platforms_len), k)
+            individual = [0] * self.platforms_len
             for idx in indices:
                 individual[idx] = 1
             self.population.append(individual)
-        
 
-    def get_list_of_platforms_from_a_individual(self, individual):
-        platform = []
+    def get_list_of_platforms_from_an_individual(self, individual):
+        return [self.platforms[i] for i in range(len(individual)) if individual[i] == 1]
+
+    def crossover(self, parent1, parent2):
+        crossover_point = random.randint(1, len(parent1) - 1)
+        return parent1[:crossover_point] + parent2[crossover_point:]
+
+    def mutate(self, individual):
+        return [
+            1 - gene if random.random() < MUTATION_RATE else gene
+            for gene in individual
+        ]
+
+    def evolutionary_algorithm(self):
+        self.__generate_initial_population()
+        for _ in range(GENERATIONS):
+            new_population = []
+            for _ in range(population_size):
+                parent1 = random.choice(self.population)
+                parent2 = random.choice(self.population)
+                offspring = self.crossover(parent1, parent2)
+                offspring = self.mutate(offspring)
+                new_population.append(offspring)
+
+            for individual in new_population:
+                cost = cost_function(self.get_list_of_platforms_from_an_individual(individual), self.preference_vector)
+                if cost < self.cost and cost != 0:
+                    self.cost = cost
+                    self.individual_with_lowest_cost = individual
+
+            self.population = new_population
+
+    def platform_names(self, individual):
+        population_names = []
         for i in range(len(individual)):
             if individual[i] == 1:
-                platform.append(self.platforms[i])
-        return platform
-    
-    def crossover(self, parent1, parent2):
-        crossover_point = random.randint(1, NUM_Plamforms - 1)
-        return parent1[:crossover_point] + parent2[crossover_point:]
-    
-    def mutate(individual):
-        muted_individual = []
-        for i in individual:
-            if random.random() < MUTATION_RATE:
-                muted_individual.append(1 - i)
-            else:
-                muted_individual.append(i)
-        return muted_individual
-    
-    def evolotionary_algoritm(self, preference_vector):
-        self.__generate_initial_population() # stworzenie pierwszej generacji
-        for individual in self.population:
-            cost = cost_function(self.get_list_of_platforms_from_a_individual(individual), preference_vector)
-            if cost < self.cost:
-                self.cost = cost
-                self.individual_with_lowest_cost = individual
+                population_names.append(self.platforms[i].title)
+        return(population_names)
 
-    
-    def print_platform_names(self):
-        population_names = []
-        for individual in self.population:
-            platform_names = []
-            for i in range(len(individual)):
-                if individual[i] == 1:
-                    platform_names.append(self.platforms[i].title)
-            population_names.append(platform_names)
-        print(population_names)
 
 
 class Solution():

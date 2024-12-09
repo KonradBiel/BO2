@@ -21,20 +21,11 @@ films_A = Film_base('Baza_filmow_v2.csv')
 
 platform_base = PlatformBase('Baza_platform.csv', films_A)
 
-for platform in platform_base:
-    print(platform)
-
-print(platform_base)
-
 preference_vector2 = np.zeros(21)
 preference_vector2[1] = 1
-print(cost_function([platform_base[0], platform_base[4]], preference_vector2))
-print(cost_function([platform_base[0], platform_base[4], platform_base[5]], preference_vector2))
 
 alg = Algorithm(platform_base, preference_vector2)
-alg.generate_initial_population(6)
-print("[")
-for el in alg.population:
-    print(el)
-print("]")
 
+alg.evolutionary_algorithm()
+
+print(alg.platform_names(alg.individual_with_lowest_cost), alg.cost)
