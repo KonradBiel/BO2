@@ -18,8 +18,9 @@ class Algorithm:
         self.population = []
         self.preference_vector = preference_vector
         self.individual_with_lowest_cost = []
+        self.cost = 99999
 
-    def generate_initial_population(self):
+    def __generate_initial_population(self):
         for _ in range(population_size):
             k = random.randint(1, NUM_Plamforms)
             indices = random.sample(range(NUM_Plamforms), k)
@@ -29,13 +30,12 @@ class Algorithm:
             self.population.append(individual)
         
 
-    def get_list_of_platforms_from_a_binary(self, number = population_size):
-        platforms = []
-        for i in range(self.platforms_len):
-            if number%2 == 1:
-                platforms.append(self.platforms[i])
-            number = number//2
-        return platforms
+    def get_list_of_platforms_from_a_individual(self, individual):
+        platform = []
+        for i in range(len(individual)):
+            if individual[i] == 1:
+                platform.append(self.platforms[i])
+        return platform
     
     def crossover(self, parent1, parent2):
         crossover_point = random.randint(1, NUM_Plamforms - 1)
@@ -51,23 +51,23 @@ class Algorithm:
         return muted_individual
     
     def evolotionary_algoritm(self, preference_vector):
-        self.generate_initial_population(population_size) # stworzenie pierwszej generacji
-    
-    def print_platform_names(self, platform_base):
-        population_names = []
+        self.__generate_initial_population() # stworzenie pierwszej generacji
+        for individual in self.population:
+            cost = cost_function(self.get_list_of_platforms_from_a_individual(individual), preference_vector)
+            if cost < self.cost:
+                self.cost = cost
+                self.individual_with_lowest_cost = individual
 
+    
+    def print_platform_names(self):
+        population_names = []
         for individual in self.population:
             platform_names = []
-            print(individual)
             for i in range(len(individual)):
                 if individual[i] == 1:
-                    platform_names.append(platform_base[i].title)
+                    platform_names.append(self.platforms[i].title)
             population_names.append(platform_names)
         print(population_names)
-
-        
-        
-
 
 
 class Solution():
