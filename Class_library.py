@@ -1,15 +1,6 @@
 from genres import ALL_GENRES
 import numpy as np
 
-
-# data = []
-# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena","index"]
-# with open('Baza_filmow_v2.csv', 'rt') as file:
-#     for line in file:
-#         record = line.rstrip().split(';')
-#         data.append(record)
-# print(data)
-
 class Film:
     def __init__(self, title, genres, watch_time, rating, film_id):
         self.title = title
