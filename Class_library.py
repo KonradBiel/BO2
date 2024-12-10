@@ -137,4 +137,50 @@ class PlatformBase:
 
 class User:
     def __init__(self):
-        None
+        self.budget = 100
+        self.num_of_platf = 0
+        self.Users_films = []
+        self.preference_vec = []
+        self.pref_time = 0
+
+        
+    def set_budget(self,budget):
+        self.budget = budget
+        
+        
+    def retain_top_3(self, avg_movie_genres):
+        top_3 = sorted(avg_movie_genres, reverse=True)[:3]
+        result = [x if x in top_3 and top_3.remove(x) is None else 0 for x in avg_movie_genres]
+        return result
+
+    def set_users_films(self, film):
+        self.Users_films.append(film)
+
+    def set_preferences(self):
+        if not self.Users_films:
+            raise Exception("User has no films to calculate preferences.")
+        avg_film = sum(film.genres_vec for film in self.Users_films)
+        avg_film /= len(self.Users_films)
+        #self.preference_vec = self.retain_top_3(avg_film)
+        self.preference_vec = avg_film
+
+                
+    def get_budget(self):
+        return self.budget
+    
+    def get_preferences(self):
+        return self.preference_vec          
+        
+
+
+
+klient = User()
+films_A = Film_base('Baza_filmow_v2.csv')
+for film, i in zip(films_A.films, range(10)):
+    klient.set_users_films(film)
+    print(film.genres_vec)
+
+
+    
+klient.set_preferences()
+print(klient.get_preferences())  
