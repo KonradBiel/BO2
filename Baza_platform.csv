@@ -1,8 +1,12 @@
-Amazon Prime Video;[1:150];15;1
-Netflix;[151:300];15;2
-Disney Plus;[301:450];16;3
-MAX;[451:600];17;4
-Apple TV Plus;[601:700];10;5
-Hulu;[701:800];10;6
-Peacock;[801:900];8;7
-Paramount Plus;[901:1001];8;8
+Amazon Prime Video;[1:80];15;1
+Netflix;[81:150];15;2
+Disney Plus;[151:221];16;3
+MAX;[221:320];17;4
+Apple TV Plus;[321:410];10;5
+Hulu;[411:500];10;6
+Peacock;[501:590];8;7
+Paramount Plus;[591:670];8;8
+Player;[671:740];6;9
+Canal Plus Online;[741:830];9;10
+TVP VOD;[831:910];8;11
+Pirates Bay;[911:1001];11;12
