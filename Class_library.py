@@ -101,7 +101,7 @@ class Platform:
         return self.score_cache
     
     def __str__(self):
-        return f"Platforma: {self.title}, Cena: {self.price}, Filmy: {[film.film_id for film in self.films]}"
+        return f"Platforma: {self.title}, Cena: {self.price}"
     
 class PlatformBase:
     def __init__(self, file_name, film_base):
