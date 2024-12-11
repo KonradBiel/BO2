@@ -12,7 +12,3 @@ preference_vector2[1] = 1
 alg = Algorithm(platform_base, preference_vector2, {"mutation_rate": 0.1, "population_size": 12, "max_generations": 16}, platform_base, 35)
 print("Best: ", alg.evolutionary_algorithm())
 print(Solution.count)
-
-alg.evolutionary_algorithm()
-
-print(alg.platform_names(alg.individual_with_lowest_cost), alg.cost)
