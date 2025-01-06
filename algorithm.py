@@ -5,6 +5,7 @@ NUM_Plamforms = 8 # liczba platform
 MUTATION_RATE = 0.1 # szansa na mutacje w zakresie od 0-1
 GENERATIONS = 15 # Liczba generacji
 population_size = 5 # liczba osobników w jednej populacji
+TOURNAMENT = False
 
 def cost_function(platforms, preference_vector):
     cost_fun_val = 0
@@ -62,6 +63,27 @@ class Algorithm:
             return Solution(self.__get_list_of_platforms_from_a_binary_list(new_binary), self.preference_vector, self.platform_base)
         else:
             return individual
+        
+    def tournament(self, population):
+        random.shuffle(population)
+        
+        participants = population[:]
+
+        while len(participants) > 2:
+            next_round = []
+            for i in range(0, len(participants) - 1, 2):
+                if participants[i].score > participants[i + 1].score:
+                    next_round.append(participants[i])
+                else:
+                    next_round.append(participants[i + 1])
+            
+            if len(participants) % 2 == 1:
+                next_round.append(participants[-1])
+            
+            participants = next_round
+        
+        return participants[0], participants[1]
+
 
     def evolutionary_algorithm(self):
         population = self.__generate_initial_population()
@@ -79,9 +101,13 @@ class Algorithm:
             for i in range(elites):
                 new_population.append(sorted_population[i])
             counter = 0;
+
             while counter < self.algorithm_options["population_size"]-elites:
-                parent1 = random.choice(sorted_population[:reproducing])
-                parent2 = random.choice(population[:reproducing])
+                if TOURNAMENT is True:
+                    parent1, parent2 = self.tournament(sorted_population[:reproducing])
+                else:
+                    parent1, parent2 = random.choice(sorted_population[:reproducing]), random.choice(sorted_population[:reproducing])
+
                 offspring = self.crossover(parent1, parent2)
                 offspring = self.mutate(offspring)
                 if offspring.cost > self.budget:
