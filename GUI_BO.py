@@ -1,168 +1,210 @@
-import genres as gen
-import platforms
-import movie
-import client
+from Class_library import Platform, Film_base, PlatformBase, User, Film
+from algorithm import cost_function, Algorithm
 import numpy as np
-from tkinter import *
+import tkinter as tk
 from tkinter import messagebox
-from tkinter import ttk
+from tkinter import Menu, ttk, StringVar, IntVar, DoubleVar
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+import random
 
-client1 = client.Client()
+user = User()
+films_A = Film_base('Baza_filmow_v2.csv')
+names_of_films = [name.title for name in films_A.films]
+platform_base = PlatformBase('Baza_platform.csv', films_A)
 
-# create root window
-root = Tk()
+# Domyślne parametry algorytmu
+DEFAULT_NUM_PLATFORMS = 8
+DEFAULT_MUTATION_RATE = 0.1
+DEFAULT_GENERATIONS = 50
 
-# root window title and dimension
-root.title("BO_2")
+class tkinterApp(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
 
-####################### Geometry ###########################
-root.geometry('1024x640')
-root.columnconfigure(0,weight = 100)
-root.columnconfigure(1, weight= 10)
-root.columnconfigure(2, weight= 10)
-root.rowconfigure(0,weight=1)
-root.rowconfigure(1,weight=1)
-root.rowconfigure(2,weight=1)
+        # Ustawienia okna głównego
+        self.title("BO_2")
+        self.geometry('1024x640')
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+        # Tworzenie menu
+        menu = Menu(self)
+        item = Menu(menu, tearoff=0)
+        item.add_command(label='Panel wyboru', command=lambda: self.show_frame("Choosing_page"))
+        item.add_command(label='Funkcja celu', command=lambda: self.show_frame("AlgorithmPage"))
+        menu.add_cascade(label='File', menu=item)
+        self.config(menu=menu)
 
-# adding menu bar in root window
-# new item in menu bar labelled as 'New'
-# adding more items in the menu bar 
-menu = Menu(root)
-item = Menu(menu)
-item.add_command(label='Funkcja celu',command=)
-item.add_command(label='Panel główny')
-menu.add_cascade(label='File', menu=item)
-root.config(menu=menu)
+        # Kontener dla stron
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
 
-root.frame()
+        # Słownik do przechowywania stron
+        self.frames = {}
 
-# adding a label to the root window
-lbl = Label(root, text = "Are you a Geek?")
-lbl.grid()
+        # Dodanie stron do aplikacji
+        for F in (Choosing_page, AlgorithmPage):
+            page_name = F.__name__
+            frame = F(parent=container, controller=self)
+            self.frames[page_name] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
 
-# adding Entry Field
-budget_box = Entry(root, width=10)
-budget_box .grid(column =1, row =0)
-
-
-
-########################## Function to buttom #######################
-def clicked_to_set_budget():
-    try:
-        int(budget_box.get())
-        budget = int(budget_box.get())
-        client1.set_budget(budget)
+        # Wyświetlenie strony startowej
+        self.show_frame("Choosing_page")
+    def on_close(self):
+        """Obsługuje zamknięcie okna aplikacji."""
+        print("Aplikacja została zamknięta")
+        self.quit()  # Zakończenie pętli mainloop, co kończy aplikację
+        self.destroy()  
         
-    except ValueError:    
-        messagebox.showerror("Uwaga","Nie dałeś intigera Byku")
-       
-    
-    
-def clicked():
-
-    
-
-def clicked():
-
-    res = "You wrote" + txt.get()
-    lbl.configure(text = res)        
-
-##################### Buttoms ##########################
-btn = Button(root, text = "Budget" ,fg = "red", command=clicked_to_set_budget)
-btn.grid(column=2, row=0)
-
-btn = Button(root, text = "Click me" , fg = "green", command=clicked)
-btn.grid(column=2, row=1)
-
-btn = Button(root, text = "Click me" ,fg = "blue", command=clicked)
-btn.grid(column=2, row=2)
-
-#######################################################
-# Execute Tkinter
-root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-class tkinterApp(Tk):
-
-    def __init__(self, *args, **kwargs): 
-        Tk.__init__(self, *args, **kwargs)
-         
-        # creating a container
-        container = Frame(self)  
-        container.pack(side = "top", fill = "both", expand = True) 
-  
-        container.grid_rowconfigure(0, weight = 1)
-        container.grid_columnconfigure(0, weight = 1)
-
-        self.frames = {}  
-
-        for F in (StartPage, Page1):
-  
-            frame = F(container, self)
-            self.frames[F] = frame 
-  
-            frame.grid(row = 0, column = 0, sticky ="nsew")
-  
-        self.show_frame(StartPage)
-
-    def show_frame(self, cont):
-        frame = self.frames[cont]
+    def show_frame(self, page_name):
+        """Wyświetla stronę o podanej nazwie."""
+        frame = self.frames[page_name]
         frame.tkraise()
-  
-# first window frame startpage
-  
-class StartPage(Frame):
-    def __init__(self, parent, controller): 
-        Frame.__init__(self, parent)
-         
-        # label of frame Layout 2
-        label = ttk.Label(self, text ="Startpage")
-         
-        # putting the grid in its place by using
-        # grid
-        label.grid(row = 0, column = 4, padx = 10, pady = 10) 
-  
-        button1 = ttk.Button(self, text ="Page 1",
-        command = lambda : controller.show_frame(Page1))
-     
-        # putting the button in its place by
-        # using grid
-        button1.grid(row = 1, column = 1, padx = 10, pady = 10)
-  
-     
-  
-          
-  
-  
-# second window frame page1 
-class Page1(Frame):
-     
-    def __init__(self, parent, controller):
-         
-        Frame.__init__(self, parent)
-        label = ttk.Label(self, text ="Page 1")
-        label.grid(row = 0, column = 4, padx = 10, pady = 10)
-  
-        # button to show frame 2 with text
-        # layout2
-        button1 = ttk.Button(self, text ="StartPage",command = lambda : controller.show_frame(StartPage))
-     
-        button1.grid(row = 1, column = 1, padx = 10, pady = 10)
-  
-  
-  
 
-  
-# Driver Code
-app = tkinterApp()
-app.mainloop()
+# Strona startowa (Choosing_page)
+class Choosing_page(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.user = user
+
+        # Ustawienia siatki dla równomiernego rozmieszczenia elementów
+        for i in range(7):
+            self.grid_rowconfigure(i, weight=1)
+        for j in range(4):
+            self.grid_columnconfigure(j, weight=1)
+
+        # Etykieta
+        label = ttk.Label(self, text="Wybór preferencji i opcji algorytmu", font=("Calibra", 24))
+        label.grid(row=0, column=1, columnspan=2, padx=10, pady=10)
+
+        # Pole do wpisania nazwy filmu
+        self.movie_name_var = StringVar()
+        self.selected_movie_var = StringVar()
+
+        movie_label = ttk.Label(self, text="Wpisz nazwę filmu:")
+        movie_label.grid(row=1, column=0, padx=10, pady=5)
+
+        self.movie_entry = ttk.Entry(self, textvariable=self.movie_name_var, width=50)
+        self.movie_entry.grid(row=1, column=1, padx=10, pady=5)
+        self.movie_entry.bind("<KeyRelease>", self.update_autofill)
+
+        # Dropdown for autocompletion
+        self.movie_options = names_of_films
+        self.filtered_options = tk.StringVar(value=self.movie_options)
+        self.movie_listbox = tk.Listbox(self, listvariable=self.filtered_options, height=10, width=50)
+        self.movie_listbox.grid(row=2, column=1, padx=10, pady=5)
+        self.movie_listbox.bind("<<ListboxSelect>>", self.select_movie_from_list)
+
+        # Listbox to display selected movies
+        self.selected_movies_listbox = tk.Listbox(self, height=10, width=30)
+        self.selected_movies_listbox.grid(row=1, column=2, rowspan=4, padx=10, pady=5, sticky="n")
+
+        # Button to confirm selection
+        confirm_button = ttk.Button(self, text="Select Movie", command=self.display_selected_movie)
+        confirm_button.grid(row=3, column=1, padx=10, pady=10)
+
+        # Parametry algorytmu
+        self.num_platforms_var = IntVar(value=DEFAULT_NUM_PLATFORMS)
+        self.mutation_rate_var = DoubleVar(value=DEFAULT_MUTATION_RATE)
+        self.generations_var = IntVar(value=DEFAULT_GENERATIONS)
+
+        ttk.Label(self, text="Liczba platform:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
+        ttk.Entry(self, textvariable=self.num_platforms_var).grid(row=5, column=1, padx=10, pady=5)
+
+        ttk.Label(self, text="Współczynnik mutacji:").grid(row=6, column=0, padx=10, pady=5, sticky="w")
+        ttk.Entry(self, textvariable=self.mutation_rate_var).grid(row=6, column=1, padx=10, pady=5)
+
+        ttk.Label(self, text="Liczba generacji:").grid(row=7, column=0, padx=10, pady=5, sticky="w")
+        ttk.Entry(self, textvariable=self.generations_var).grid(row=7, column=1, padx=10, pady=5)
+
+        # Button to przejścia na AlgorithmPage
+        button1 = ttk.Button(self, text="Uruchom algorytm", command=lambda: self.run_algorithm(controller))
+        button1.grid(row=8, column=1, padx=10, pady=10)
+
+    def update_autofill(self, event):
+        typed_text = self.movie_name_var.get().lower()
+        filtered = [movie for movie in self.movie_options if typed_text in movie.lower()]
+        self.filtered_options.set(filtered)
+
+    def select_movie_from_list(self, event):
+        selected_index = self.movie_listbox.curselection()
+        if selected_index:
+            selected_movie = self.movie_listbox.get(selected_index)
+            self.movie_name_var.set(selected_movie)
+
+    def display_selected_movie(self):
+        selected_movie = self.movie_name_var.get()
+        film_object = films_A.get_film_by_title(selected_movie)
+        
+        if film_object:
+            if selected_movie not in self.selected_movies_listbox.get(0, tk.END):
+                user.set_users_films(film_object)
+                self.selected_movies_listbox.insert(tk.END, selected_movie)
+            else:
+                messagebox.showinfo("Info", "Movie is already selected.")
+        else:
+            messagebox.showerror("Error", "Movie not found!")
+
+    def run_algorithm(self, controller):
+        user.set_preferences()
+        print(user.get_preferences())
+        preference_vector = user.get_preferences()  # Wektor preferencji
+        num_platforms = self.num_platforms_var.get()
+        mutation_rate = self.mutation_rate_var.get()
+        generations = self.generations_var.get()
+
+        # Inicjalizacja algorytmu
+        alg = Algorithm(platform_base, preference_vector)
+        alg.generate_initial_population(num_platforms)
+
+        # Wyniki funkcji celu dla każdej generacji
+        costs = []
+
+        # Symulacja działania algorytmu ewolucyjnego
+        for _ in range(generations):
+            alg.evolotionary_algoritm(preference_vector)  # Jedna iteracja algorytmu
+            best_solution = min(alg.population, key=lambda sol: sol.cost)  # Najlepsza wartość w generacji
+            costs.append(best_solution.cost)  # Dodaj do wyników
+
+        # Przekaż rzeczywiste wyniki do wykresu
+        algorithm_page = controller.frames["AlgorithmPage"]
+        algorithm_page.update_plot(generations, costs)
+        controller.show_frame("AlgorithmPage")
+
+# Strona AlgorithmPage
+class AlgorithmPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+
+        # Konfiguracja układu
+        self.grid_rowconfigure(0, weight=1)  # Wiersz na wykres
+        self.grid_columnconfigure(0, weight=1)  # Kolumna na wykres
+
+        # Wykres
+        self.figure, self.ax = plt.subplots(figsize=(6, 4))
+        self.ax.set_title("Zmiana funkcji celu w iteracjach")
+        self.ax.set_xlabel("Iteracje")
+        self.ax.set_ylabel("Wartość funkcji celu")
+        self.line, = self.ax.plot([], [], label="Funkcja celu")
+        self.ax.legend()
+
+        self.canvas = FigureCanvasTkAgg(self.figure, self)
+        canvas_widget = self.canvas.get_tk_widget()
+        canvas_widget.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")  # Rozciąganie w obu kierunkach
+
+        # Powrót do wyboru
+        back_button = ttk.Button(self, text="Powrót", command=lambda: controller.show_frame("Choosing_page"))
+        back_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")  # Rozciąganie w poziomie
+
+    def update_plot(self, generations, costs):
+        self.line.set_data(range(generations), costs)
+        self.ax.set_xlim(0, generations - 1)
+        self.ax.set_ylim(min(costs) - 5, max(costs) + 5)
+        self.canvas.draw()
+
+# Uruchomienie aplikacji
+if __name__ == "__main__":
+    app = tkinterApp()
+    app.mainloop()

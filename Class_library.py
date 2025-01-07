@@ -81,6 +81,12 @@ class Film_base:
 
                 films.append(Film(title, genres, watch_time, rating, film_id))
         return films
+    
+    def get_film_by_title(self, title):
+        for film in self.films:
+            if film.title == title:
+                return film
+        return None
 
 class Platform:
     def __init__(self, title, film_base, price, index, movie_indices):
@@ -148,10 +154,10 @@ class User:
         self.budget = budget
         
         
-    def retain_top_3(self, avg_movie_genres):
-        top_3 = sorted(avg_movie_genres, reverse=True)[:3]
-        result = [x if x in top_3 and top_3.remove(x) is None else 0 for x in avg_movie_genres]
-        return result
+    # def retain_top_3(self, avg_movie_genres):
+    #     top_3 = sorted(avg_movie_genres, reverse=True)[:3]
+    #     result = [x if x in top_3 and top_3.remove(x) is None else 0 for x in avg_movie_genres]
+    #     return result
 
     def set_users_films(self, film):
         self.Users_films.append(film)
@@ -160,9 +166,10 @@ class User:
         if not self.Users_films:
             raise Exception("User has no films to calculate preferences.")
         avg_film = sum(film.genres_vec for film in self.Users_films)
-        avg_film /= len(self.Users_films)
-        #self.preference_vec = self.retain_top_3(avg_film)
-        self.preference_vec = avg_film
+        norma = np.linalg.norm(avg_film)
+        normalized_film = avg_film/norma
+        
+        self.preference_vec = normalized_film
 
                 
     def get_budget(self):
@@ -174,13 +181,13 @@ class User:
 
 
 
-klient = User()
-films_A = Film_base('Baza_filmow_v2.csv')
-for film, i in zip(films_A.films, range(10)):
-    klient.set_users_films(film)
-    print(film.genres_vec)
+# klient = User()
+# films_A = Film_base('Baza_filmow_v2.csv')
+# for film, i in zip(films_A.films, range(10)):
+#     klient.set_users_films(film)
+#     print(film.genres_vec)
 
 
     
-klient.set_preferences()
-print(klient.get_preferences())  
+# klient.set_preferences()
+# print(klient.get_preferences())  
