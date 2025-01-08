@@ -1,12 +1,6 @@
 import random
 import numpy as np
 
-NUM_Plamforms = 8 # liczba platform
-MUTATION_RATE = 0.1 # szansa na mutacje w zakresie od 0-1
-GENERATIONS = 15 # Liczba generacji
-population_size = 5 # liczba osobników w jednej populacji
-TOURNAMENT = False
-
 def cost_function(platforms, preference_vector):
     cost_fun_val = 0
     for platform in platforms:
@@ -91,6 +85,7 @@ class Algorithm:
         elites = int(np.floor(len(population)*0.1))
         reproducing = int(np.floor(len(population)*0.5))
         best = None;
+        score_arr = [];
         for generation in range(self.algorithm_options["max_generations"]):
             sorted_population = sorted(population, key=lambda x: x.score, reverse=True)
             print("Generation ", generation)
@@ -103,7 +98,7 @@ class Algorithm:
             counter = 0;
 
             while counter < self.algorithm_options["population_size"]-elites:
-                if TOURNAMENT is True:
+                if self.algorithm_options["tournament"] is True:
                     parent1, parent2 = self.tournament(sorted_population[:reproducing])
                 else:
                     parent1, parent2 = random.choice(sorted_population[:reproducing]), random.choice(sorted_population[:reproducing])
@@ -117,8 +112,10 @@ class Algorithm:
                     counter += 1
 
             population = sorted(new_population, key=lambda x: x.score, reverse=True)
-            best = population[0]
-        return best
+            if best is None or population[0] > best:
+                best = population[0]
+            score_arr.append(best.score)
+        return best, score_arr
 
 
 class Solution():
@@ -136,4 +133,7 @@ class Solution():
 
     def __str__(self):
         return f"Platformy: {[x.title for x in self.platforms]}; Wynik: {self.score}; Koszt: {self.cost}; Binarnie: {self.binary}"
+    
+    def __gt__(self, other):  # Greater than (>)
+        return self.score > other.score
     

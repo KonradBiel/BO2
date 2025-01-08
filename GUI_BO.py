@@ -157,7 +157,7 @@ class Choosing_page(tk.Frame):
 
         # Inicjalizacja algorytmu
         alg = Algorithm(platform_base, preference_vector)
-        alg.generate_initial_population(num_platforms)
+        best, score_arr = alg.evolutionary_algorithm()
 
         # Wyniki funkcji celu dla każdej generacji
         costs = []
