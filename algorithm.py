@@ -114,7 +114,12 @@ class Algorithm:
             population = sorted(new_population, key=lambda x: x.score, reverse=True)
             if best is None or population[0] > best:
                 best = population[0]
+                spree = 1
+            else:
+                spree += 1
             score_arr.append(best.score)
+            if spree == self.algorithm_options["spree"]:
+                break
         return best, score_arr
 
 
