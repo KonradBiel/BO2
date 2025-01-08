@@ -1,15 +1,6 @@
 from genres import ALL_GENRES
 import numpy as np
 
-
-# data = []
-# naglowki = ["tytuł", "Gatunek_1","Gatunek_2","Gatunek_3","czas","ocena","index"]
-# with open('Baza_filmow_v2.csv', 'rt') as file:
-#     for line in file:
-#         record = line.rstrip().split(';')
-#         data.append(record)
-# print(data)
-
 class Film:
     def __init__(self, title, genres, watch_time, rating, film_id):
         self.title = title
@@ -107,7 +98,7 @@ class Platform:
         return self.score_cache
     
     def __str__(self):
-        return f"Platforma: {self.title}, Cena: {self.price}, Filmy: {[film.film_id for film in self.films]}"
+        return f"Platforma: {self.title}, Cena: {self.price}"
     
 class PlatformBase:
     def __init__(self, file_name, film_base):
