@@ -109,14 +109,14 @@ class Choosing_page(tk.Frame):
         confirm_button.grid(row=3, column=1, padx=10, pady=10)
 
         # Parametry algorytmu
-        self.num_platforms_var = IntVar(value=DEFAULT_NUM_PLATFORMS)
+        self.budget_var = IntVar(value=DEFAULT_NUM_PLATFORMS)
         self.mutation_rate_var = DoubleVar(value=DEFAULT_MUTATION_RATE)
         self.generations_var = IntVar(value=DEFAULT_GENERATIONS)
         self.population_size_var = IntVar(value=DEFAULT_POPULATION_SIZE)
         self.tournament_var = BooleanVar(value=DEFAULT_TOURNAMENT)
 
-        ttk.Label(self, text="Cena:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
-        ttk.Entry(self, textvariable=self.num_platforms_var).grid(row=5, column=1, padx=10, pady=5)
+        ttk.Label(self, text="Budżet:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
+        ttk.Entry(self, textvariable=self.budget_var).grid(row=5, column=1, padx=10, pady=5)
 
         ttk.Label(self, text="Współczynnik mutacji:").grid(row=6, column=0, padx=10, pady=5, sticky="w")
         ttk.Entry(self, textvariable=self.mutation_rate_var).grid(row=6, column=1, padx=10, pady=5)
@@ -161,17 +161,18 @@ class Choosing_page(tk.Frame):
     def run_algorithm(self, controller):
         user.set_preferences()
         preference_vector = user.get_preferences()  # Wektor preferencji
-        num_platforms = self.num_platforms_var.get()
+        budget_var = self.budget_var.get()
         mutation_rate = self.mutation_rate_var.get()
         generations = self.generations_var.get()
-
+        tournament_var = self.tournament_var.get()
+        population_size_var = self.population_size_var.get()
         # Inicjalizacja algorytmu
         alg = Algorithm(platform_base, preference_vector, {
             "mutation_rate": mutation_rate,
-            "population_size": 5,
+            "population_size": population_size_var,
             "max_generations": generations,
-            "tournament": False
-        }, platform_base, num_platforms)
+            "tournament": tournament_var
+        }, platform_base, budget_var)
         best_solution, score_arr = alg.evolutionary_algorithm()
 
         # Przekaż wyniki do AlgorithmPage
