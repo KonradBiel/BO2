@@ -144,14 +144,13 @@ class User:
     def set_budget(self,budget):
         self.budget = budget
         
-        
-    # def retain_top_3(self, avg_movie_genres):
-    #     top_3 = sorted(avg_movie_genres, reverse=True)[:3]
-    #     result = [x if x in top_3 and top_3.remove(x) is None else 0 for x in avg_movie_genres]
-    #     return result
+
 
     def set_users_films(self, film):
         self.Users_films.append(film)
+        
+    def remove_users_films(self, film):
+        self.Users_films.remove(film)
 
     def set_preferences(self):
         if not self.Users_films:

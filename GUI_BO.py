@@ -7,13 +7,15 @@ from tkinter import Menu, ttk, StringVar, IntVar, DoubleVar, BooleanVar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import random
+from ttkthemes import ThemedStyle
 
 # Domyślne parametry algorytmu
-DEFAULT_NUM_PLATFORMS = 8
+DEFAULT_BUDGET = 35
 DEFAULT_MUTATION_RATE = 0.1
 DEFAULT_GENERATIONS = 50
 DEFAULT_POPULATION_SIZE = 10
 DEFAULT_TOURNAMENT = False
+DEFAULT_SPREE = 10
 
 user = User()
 films_A = Film_base('Baza_filmow_v2.csv')
@@ -28,7 +30,12 @@ class tkinterApp(tk.Tk):
         self.title("BO_2")
         self.geometry('1024x640')
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-
+        
+        # Ustawienie motywu
+        style = ThemedStyle(self)
+        style.set_theme('equilux')
+        style.configure('.', font=('Arial', 12))
+        
         # Tworzenie menu
         menu = Menu(self)
         item = Menu(menu, tearoff=0)
@@ -71,15 +78,15 @@ class Choosing_page(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.user = user
-
+        self.configure(bg="#2C2C2C")    
         # Ustawienia siatki
-        for i in range(10):
+        for i in range(11):
             self.grid_rowconfigure(i, weight=1)
         for j in range(4):
             self.grid_columnconfigure(j, weight=1)
 
         # Etykieta
-        label = ttk.Label(self, text="Wybór preferencji i opcji algorytmu", font=("Calibra", 24))
+        label = ttk.Label(self, text="Wybór preferencji i opcji algorytmu", font=("Arial", 24), foreground="#E0E0E0")
         label.grid(row=0, column=1, columnspan=2, padx=10, pady=10)
 
         # Pole do wpisania nazwy filmu
@@ -96,43 +103,53 @@ class Choosing_page(tk.Frame):
         # Dropdown for autocompletion
         self.movie_options = names_of_films
         self.filtered_options = tk.StringVar(value=self.movie_options)
-        self.movie_listbox = tk.Listbox(self, listvariable=self.filtered_options, height=10, width=50)
+        self.movie_listbox = tk.Listbox(self, listvariable=self.filtered_options, height=10, width=50, bg='#333333', fg='white', selectbackground='#555555', selectforeground='white')
         self.movie_listbox.grid(row=2, column=1, padx=10, pady=5)
         self.movie_listbox.bind("<<ListboxSelect>>", self.select_movie_from_list)
 
         # Listbox to display selected movies
-        self.selected_movies_listbox = tk.Listbox(self, height=10, width=30)
+        self.selected_movies_listbox = tk.Listbox(self, height=10, width=30, bg='#333333', fg='white', selectbackground='#555555', selectforeground='white')
         self.selected_movies_listbox.grid(row=1, column=2, rowspan=4, padx=10, pady=5, sticky="n")
 
         # Button to confirm selection
         confirm_button = ttk.Button(self, text="Select Movie", command=self.display_selected_movie)
         confirm_button.grid(row=3, column=1, padx=10, pady=10)
 
+        # Button to remove selected movie
+        remove_button = ttk.Button(self, text="Remove Selected Movie", command=self.remove_selected_movie)
+        remove_button.grid(row=3, column=2, padx=10, pady=10)
+
         # Parametry algorytmu
-        self.budget_var = IntVar(value=DEFAULT_NUM_PLATFORMS)
+        self.budget_var = IntVar(value=DEFAULT_BUDGET)
         self.mutation_rate_var = DoubleVar(value=DEFAULT_MUTATION_RATE)
         self.generations_var = IntVar(value=DEFAULT_GENERATIONS)
         self.population_size_var = IntVar(value=DEFAULT_POPULATION_SIZE)
         self.tournament_var = BooleanVar(value=DEFAULT_TOURNAMENT)
+        self.spree_var = IntVar(value=DEFAULT_SPREE)
+    
+        ttk.Label(self, text="Budżet:").grid(row=5, column=0, padx=10, pady=5)
+        ttk.Entry(self, textvariable=self.budget_var).grid(row=5, column=1, padx=10, pady=5,sticky="w")
 
-        ttk.Label(self, text="Budżet:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
-        ttk.Entry(self, textvariable=self.budget_var).grid(row=5, column=1, padx=10, pady=5)
+        ttk.Label(self, text="Współczynnik mutacji:").grid(row=6, column=0, padx=10, pady=5)
+        ttk.Entry(self, textvariable=self.mutation_rate_var).grid(row=6, column=1, padx=10, pady=5,sticky="w")
 
-        ttk.Label(self, text="Współczynnik mutacji:").grid(row=6, column=0, padx=10, pady=5, sticky="w")
-        ttk.Entry(self, textvariable=self.mutation_rate_var).grid(row=6, column=1, padx=10, pady=5)
+        ttk.Label(self, text="Liczba generacji:").grid(row=7, column=0, padx=10, pady=5)
+        ttk.Entry(self, textvariable=self.generations_var).grid(row=7, column=1, padx=10, pady=5,sticky="w")
 
-        ttk.Label(self, text="Liczba generacji:").grid(row=7, column=0, padx=10, pady=5, sticky="w")
-        ttk.Entry(self, textvariable=self.generations_var).grid(row=7, column=1, padx=10, pady=5)
+        ttk.Label(self, text="Rozmiar populacji:").grid(row=8, column=0, padx=10, pady=5)
+        ttk.Entry(self, textvariable=self.population_size_var).grid(row=8, column=1, padx=10, pady=5,sticky="w")
+        
+        ttk.Label(self, text="Warunek końca:").grid(row=9, column=0, padx=10, pady=5)
+        ttk.Entry(self, textvariable=self.spree_var).grid(row=9, column=1, padx=10, pady=5, sticky="w")
 
-        ttk.Label(self, text="Rozmiar populacji:").grid(row=8, column=0, padx=10, pady=5, sticky="w")
-        ttk.Entry(self, textvariable=self.population_size_var).grid(row=8, column=1, padx=10, pady=5)
+        ttk.Label(self, text="Turniej selekcyjny:").grid(row=10, column=0, padx=10, pady=5)
+        ttk.Checkbutton(self, variable=self.tournament_var).grid(row=10, column=1, padx=10, pady=5, sticky="w")
+        
 
-        ttk.Label(self, text="Turniej selekcyjny:").grid(row=9, column=0, padx=10, pady=5, sticky="w")
-        ttk.Checkbutton(self, variable=self.tournament_var).grid(row=9, column=1, padx=10, pady=5, sticky="w")
-
+        
         # Button do przejścia na AlgorithmPage
         button1 = ttk.Button(self, text="Uruchom algorytm", command=lambda: self.run_algorithm(controller))
-        button1.grid(row=10, column=1, padx=10, pady=10)
+        button1.grid(row=11, column=1, padx=10, pady=10)
 
     def update_autofill(self, event):
         typed_text = self.movie_name_var.get().lower()
@@ -158,6 +175,21 @@ class Choosing_page(tk.Frame):
         else:
             messagebox.showerror("Error", "Movie not found!")
 
+    def remove_selected_movie(self):
+        selected_index = self.selected_movies_listbox.curselection()
+        if selected_index:
+            movie_to_remove = self.selected_movies_listbox.get(selected_index)
+            self.selected_movies_listbox.delete(selected_index)
+
+            # Remove the movie from the user's selected films
+            film_object = films_A.get_film_by_title(movie_to_remove)
+            if film_object in user.Users_films:
+                user.remove_users_films(film_object)
+            messagebox.showinfo("Info", f"Removed {movie_to_remove} from selected movies.")
+            
+        else:
+            messagebox.showwarning("Warning", "No movie selected to remove.")
+
     def run_algorithm(self, controller):
         user.set_preferences()
         preference_vector = user.get_preferences()  # Wektor preferencji
@@ -166,12 +198,14 @@ class Choosing_page(tk.Frame):
         generations = self.generations_var.get()
         tournament_var = self.tournament_var.get()
         population_size_var = self.population_size_var.get()
+        spree = self.spree_var.get()
         # Inicjalizacja algorytmu
         alg = Algorithm(platform_base, preference_vector, {
             "mutation_rate": mutation_rate,
             "population_size": population_size_var,
             "max_generations": generations,
-            "tournament": tournament_var
+            "tournament": tournament_var,
+            "spree": spree
         }, platform_base, budget_var)
         best_solution, score_arr = alg.evolutionary_algorithm()
 
@@ -188,7 +222,7 @@ class AlgorithmPage(tk.Frame):
         # Konfiguracja układu
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
-
+        self.configure(bg="#2C2C2C")  
         # Wykres
         self.figure, self.ax = plt.subplots(figsize=(6, 4))
         self.ax.set_title("Zmiana funkcji celu w iteracjach")
