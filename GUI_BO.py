@@ -3,20 +3,22 @@ from algorithm import cost_function, Algorithm
 import numpy as np
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import Menu, ttk, StringVar, IntVar, DoubleVar
+from tkinter import Menu, ttk, StringVar, IntVar, DoubleVar, BooleanVar
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import random
-
-user = User()
-films_A = Film_base('Baza_filmow_v2.csv')
-names_of_films = [name.title for name in films_A.films]
-platform_base = PlatformBase('Baza_platform.csv', films_A)
 
 # Domyślne parametry algorytmu
 DEFAULT_NUM_PLATFORMS = 8
 DEFAULT_MUTATION_RATE = 0.1
 DEFAULT_GENERATIONS = 50
+DEFAULT_POPULATION_SIZE = 10
+DEFAULT_TOURNAMENT = False
+
+user = User()
+films_A = Film_base('Baza_filmow_v2.csv')
+names_of_films = [name.title for name in films_A.films]
+platform_base = PlatformBase('Baza_platform.csv', films_A)
 
 class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -26,6 +28,7 @@ class tkinterApp(tk.Tk):
         self.title("BO_2")
         self.geometry('1024x640')
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+
         # Tworzenie menu
         menu = Menu(self)
         item = Menu(menu, tearoff=0)
@@ -52,25 +55,25 @@ class tkinterApp(tk.Tk):
 
         # Wyświetlenie strony startowej
         self.show_frame("Choosing_page")
+
     def on_close(self):
         """Obsługuje zamknięcie okna aplikacji."""
         print("Aplikacja została zamknięta")
-        self.quit()  # Zakończenie pętli mainloop, co kończy aplikację
-        self.destroy()  
-        
+        self.quit()
+        self.destroy()
+
     def show_frame(self, page_name):
         """Wyświetla stronę o podanej nazwie."""
         frame = self.frames[page_name]
         frame.tkraise()
 
-# Strona startowa (Choosing_page)
 class Choosing_page(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.user = user
 
-        # Ustawienia siatki dla równomiernego rozmieszczenia elementów
-        for i in range(7):
+        # Ustawienia siatki
+        for i in range(10):
             self.grid_rowconfigure(i, weight=1)
         for j in range(4):
             self.grid_columnconfigure(j, weight=1)
@@ -109,8 +112,10 @@ class Choosing_page(tk.Frame):
         self.num_platforms_var = IntVar(value=DEFAULT_NUM_PLATFORMS)
         self.mutation_rate_var = DoubleVar(value=DEFAULT_MUTATION_RATE)
         self.generations_var = IntVar(value=DEFAULT_GENERATIONS)
+        self.population_size_var = IntVar(value=DEFAULT_POPULATION_SIZE)
+        self.tournament_var = BooleanVar(value=DEFAULT_TOURNAMENT)
 
-        ttk.Label(self, text="Liczba platform:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
+        ttk.Label(self, text="Cena:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
         ttk.Entry(self, textvariable=self.num_platforms_var).grid(row=5, column=1, padx=10, pady=5)
 
         ttk.Label(self, text="Współczynnik mutacji:").grid(row=6, column=0, padx=10, pady=5, sticky="w")
@@ -119,9 +124,15 @@ class Choosing_page(tk.Frame):
         ttk.Label(self, text="Liczba generacji:").grid(row=7, column=0, padx=10, pady=5, sticky="w")
         ttk.Entry(self, textvariable=self.generations_var).grid(row=7, column=1, padx=10, pady=5)
 
-        # Button to przejścia na AlgorithmPage
+        ttk.Label(self, text="Rozmiar populacji:").grid(row=8, column=0, padx=10, pady=5, sticky="w")
+        ttk.Entry(self, textvariable=self.population_size_var).grid(row=8, column=1, padx=10, pady=5)
+
+        ttk.Label(self, text="Turniej selekcyjny:").grid(row=9, column=0, padx=10, pady=5, sticky="w")
+        ttk.Checkbutton(self, variable=self.tournament_var).grid(row=9, column=1, padx=10, pady=5, sticky="w")
+
+        # Button do przejścia na AlgorithmPage
         button1 = ttk.Button(self, text="Uruchom algorytm", command=lambda: self.run_algorithm(controller))
-        button1.grid(row=8, column=1, padx=10, pady=10)
+        button1.grid(row=10, column=1, padx=10, pady=10)
 
     def update_autofill(self, event):
         typed_text = self.movie_name_var.get().lower()
@@ -137,7 +148,7 @@ class Choosing_page(tk.Frame):
     def display_selected_movie(self):
         selected_movie = self.movie_name_var.get()
         film_object = films_A.get_film_by_title(selected_movie)
-        
+
         if film_object:
             if selected_movie not in self.selected_movies_listbox.get(0, tk.END):
                 user.set_users_films(film_object)
@@ -149,38 +160,33 @@ class Choosing_page(tk.Frame):
 
     def run_algorithm(self, controller):
         user.set_preferences()
-        print(user.get_preferences())
         preference_vector = user.get_preferences()  # Wektor preferencji
         num_platforms = self.num_platforms_var.get()
         mutation_rate = self.mutation_rate_var.get()
         generations = self.generations_var.get()
 
         # Inicjalizacja algorytmu
-        alg = Algorithm(platform_base, preference_vector)
-        best, score_arr = alg.evolutionary_algorithm()
+        alg = Algorithm(platform_base, preference_vector, {
+            "mutation_rate": mutation_rate,
+            "population_size": 5,
+            "max_generations": generations,
+            "tournament": False
+        }, platform_base, num_platforms)
+        best_solution, score_arr = alg.evolutionary_algorithm()
 
-        # Wyniki funkcji celu dla każdej generacji
-        costs = []
-
-        # Symulacja działania algorytmu ewolucyjnego
-        for _ in range(generations):
-            alg.evolotionary_algoritm(preference_vector)  # Jedna iteracja algorytmu
-            best_solution = min(alg.population, key=lambda sol: sol.cost)  # Najlepsza wartość w generacji
-            costs.append(best_solution.cost)  # Dodaj do wyników
-
-        # Przekaż rzeczywiste wyniki do wykresu
+        # Przekaż wyniki do AlgorithmPage
         algorithm_page = controller.frames["AlgorithmPage"]
-        algorithm_page.update_plot(generations, costs)
+        algorithm_page.update_plot(len(score_arr), score_arr, best_solution)
         controller.show_frame("AlgorithmPage")
 
-# Strona AlgorithmPage
+
 class AlgorithmPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         # Konfiguracja układu
-        self.grid_rowconfigure(0, weight=1)  # Wiersz na wykres
-        self.grid_columnconfigure(0, weight=1)  # Kolumna na wykres
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
         # Wykres
         self.figure, self.ax = plt.subplots(figsize=(6, 4))
@@ -192,17 +198,36 @@ class AlgorithmPage(tk.Frame):
 
         self.canvas = FigureCanvasTkAgg(self.figure, self)
         canvas_widget = self.canvas.get_tk_widget()
-        canvas_widget.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")  # Rozciąganie w obu kierunkach
+        canvas_widget.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        # Etykieta dla najlepszego wyniku
+        self.best_result_label = ttk.Label(self, text="Najlepszy wynik: ---", font=("Arial", 12))
+        self.best_result_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+
+        # Etykieta dla wybranego wektora platform
+        self.selected_platforms_label = ttk.Label(self, text="Wybrane platformy: ---", font=("Arial", 12), wraplength=800)
+        self.selected_platforms_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
         # Powrót do wyboru
         back_button = ttk.Button(self, text="Powrót", command=lambda: controller.show_frame("Choosing_page"))
-        back_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")  # Rozciąganie w poziomie
+        back_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
 
-    def update_plot(self, generations, costs):
+    def update_plot(self, generations, costs, best_solution):
+        # Aktualizacja wykresu
         self.line.set_data(range(generations), costs)
         self.ax.set_xlim(0, generations - 1)
         self.ax.set_ylim(min(costs) - 5, max(costs) + 5)
         self.canvas.draw()
+
+        # Wyświetlenie najlepszego wyniku
+        self.best_result_label.config(text=f"Najlepszy wynik: {best_solution.score:.4f}")
+
+        # Wyświetlenie wybranych platform
+        platform_titles = [platform.title for platform in best_solution.platforms]
+        self.selected_platforms_label.config(
+            text=f"Wybrane platformy: {', '.join(platform_titles)}"
+        )
+
 
 # Uruchomienie aplikacji
 if __name__ == "__main__":
