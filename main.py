@@ -9,7 +9,7 @@ platform_base = PlatformBase('Baza_platform.csv', films_A)
 preference_vector2 = np.zeros(21)
 preference_vector2[1] = 1
 
-alg = Algorithm(platform_base, preference_vector2, {"mutation_rate": 0.1, "population_size": 12, "max_generations": 6, "tournament": True}, platform_base, 35)
+alg = Algorithm(platform_base, preference_vector2, {"mutation_rate": 0.1, "population_size": 5, "max_generations": 50, "tournament": True, "spree": 10}, platform_base, 35)
 best, score_arr = alg.evolutionary_algorithm();
 print("Best: ", best)
 print("arr: ", score_arr)
