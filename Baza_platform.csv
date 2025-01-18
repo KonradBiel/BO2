@@ -1,12 +1,30 @@
-Amazon Prime Video;[1:80];15;1
-Netflix;[81:150];15;2
-Disney Plus;[151:221];16;3
-MAX;[221:320];17;4
-Apple TV Plus;[321:410];10;5
-Hulu;[411:500];10;6
-Peacock;[501:590];8;7
-Paramount Plus;[591:670];8;8
-Player;[671:740];6;9
-Canal Plus Online;[741:830];9;10
-TVP VOD;[831:910];8;11
-Pirates Bay;[911:1001];11;12
+Amazon Prime Video;[1:34];15;1
+Netflix;[35:68];15;2
+Disney Plus;[69:102];16;3
+MAX;[103:136];17;4
+Apple TV Plus;[137:170];10;5
+Hulu;[171:204];10;6
+Peacock;[205:238];8;7
+Paramount Plus;[239:272];8;8
+Player;[273:306];6;9
+Canal Plus Online;[307:340];9;10
+TVP VOD;[341:374];8;11
+Pirates Bay;[375:408];11;12
+HBO Go;[409:442];12;13
+Crunchyroll;[443:476];10;14
+Rakuten TV;[477:510];9;15
+Vudu;[511:544];7;16
+Tubi;[545:578];5;17
+Plex;[579:612];6;18
+Pluto TV;[613:646];4;19
+Shudder;[647:680];7;20
+FuboTV;[681:714];14;21
+Discovery Plus;[715:748];10;22
+Acorn TV;[749:782];6;23
+BritBox;[783:816];8;24
+CuriosityStream;[817:850];5;25
+Funimation;[851:884];9;26
+YouTube Premium;[885:918];11;27
+Starz;[919:952];12;28
+Showtime;[953:986];13;29
+Mubi;[987:1000];10;30
