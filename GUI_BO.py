@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import random
 from ttkthemes import ThemedStyle
 
-# Domyślne parametry algorytmu
 DEFAULT_BUDGET = 35
 DEFAULT_MUTATION_RATE = 0.1
 DEFAULT_GENERATIONS = 50
@@ -26,17 +25,16 @@ class tkinterApp(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        # Ustawienia okna głównego
+
         self.title("BO_2")
         self.geometry('1024x640')
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-        
-        # Ustawienie motywu
+
         style = ThemedStyle(self)
         style.set_theme('equilux')
         style.configure('.', font=('Arial', 12))
         
-        # Tworzenie menu
+
         menu = Menu(self)
         item = Menu(menu, tearoff=0)
         item.add_command(label='Panel wyboru', command=lambda: self.show_frame("Choosing_page"))
@@ -44,23 +42,21 @@ class tkinterApp(tk.Tk):
         menu.add_cascade(label='File', menu=item)
         self.config(menu=menu)
 
-        # Kontener dla stron
+
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
 
-        # Słownik do przechowywania stron
         self.frames = {}
 
-        # Dodanie stron do aplikacji
+
         for F in (Choosing_page, AlgorithmPage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        # Wyświetlenie strony startowej
         self.show_frame("Choosing_page")
 
     def on_close(self):
@@ -79,17 +75,17 @@ class Choosing_page(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.user = user
         self.configure(bg="#2C2C2C")    
-        # Ustawienia siatki
+
         for i in range(11):
             self.grid_rowconfigure(i, weight=1)
         for j in range(4):
             self.grid_columnconfigure(j, weight=1)
 
-        # Etykieta
+
         label = ttk.Label(self, text="Wybór preferencji i opcji algorytmu", font=("Arial", 24), foreground="#E0E0E0")
         label.grid(row=0, column=1, columnspan=2, padx=10, pady=10)
 
-        # Pole do wpisania nazwy filmu
+
         self.movie_name_var = StringVar()
         self.selected_movie_var = StringVar()
 
@@ -100,26 +96,26 @@ class Choosing_page(tk.Frame):
         self.movie_entry.grid(row=1, column=1, padx=10, pady=5)
         self.movie_entry.bind("<KeyRelease>", self.update_autofill)
 
-        # Dropdown for autocompletion
+
         self.movie_options = names_of_films
         self.filtered_options = tk.StringVar(value=self.movie_options)
         self.movie_listbox = tk.Listbox(self, listvariable=self.filtered_options, height=10, width=50, bg='#333333', fg='white', selectbackground='#555555', selectforeground='white')
         self.movie_listbox.grid(row=2, column=1, padx=10, pady=5)
         self.movie_listbox.bind("<<ListboxSelect>>", self.select_movie_from_list)
 
-        # Listbox to display selected movies
+
         self.selected_movies_listbox = tk.Listbox(self, height=10, width=30, bg='#333333', fg='white', selectbackground='#555555', selectforeground='white')
         self.selected_movies_listbox.grid(row=1, column=2, rowspan=4, padx=10, pady=5, sticky="n")
 
-        # Button to confirm selection
+
         confirm_button = ttk.Button(self, text="Select Movie", command=self.display_selected_movie)
         confirm_button.grid(row=3, column=1, padx=10, pady=10)
 
-        # Button to remove selected movie
+
         remove_button = ttk.Button(self, text="Remove Selected Movie", command=self.remove_selected_movie)
         remove_button.grid(row=3, column=2, padx=10, pady=10)
 
-        # Parametry algorytmu
+
         self.budget_var = IntVar(value=DEFAULT_BUDGET)
         self.mutation_rate_var = DoubleVar(value=DEFAULT_MUTATION_RATE)
         self.generations_var = IntVar(value=DEFAULT_GENERATIONS)
@@ -146,8 +142,6 @@ class Choosing_page(tk.Frame):
         ttk.Checkbutton(self, variable=self.tournament_var).grid(row=10, column=1, padx=10, pady=5, sticky="w")
         
 
-        
-        # Button do przejścia na AlgorithmPage
         button1 = ttk.Button(self, text="Uruchom algorytm", command=lambda: self.run_algorithm(controller))
         button1.grid(row=11, column=1, padx=10, pady=10)
 
@@ -181,7 +175,7 @@ class Choosing_page(tk.Frame):
             movie_to_remove = self.selected_movies_listbox.get(selected_index)
             self.selected_movies_listbox.delete(selected_index)
 
-            # Remove the movie from the user's selected films
+     
             film_object = films_A.get_film_by_title(movie_to_remove)
             if film_object in user.Users_films:
                 user.remove_users_films(film_object)
@@ -192,14 +186,14 @@ class Choosing_page(tk.Frame):
 
     def run_algorithm(self, controller):
         user.set_preferences()
-        preference_vector = user.get_preferences()  # Wektor preferencji
+        preference_vector = user.get_preferences()  
         budget_var = self.budget_var.get()
         mutation_rate = self.mutation_rate_var.get()
         generations = self.generations_var.get()
         tournament_var = self.tournament_var.get()
         population_size_var = self.population_size_var.get()
         spree = self.spree_var.get()
-        # Inicjalizacja algorytmu
+  
         alg = Algorithm(platform_base, preference_vector, {
             "mutation_rate": mutation_rate,
             "population_size": population_size_var,
@@ -209,7 +203,7 @@ class Choosing_page(tk.Frame):
         }, platform_base, budget_var)
         best_solution, score_arr = alg.evolutionary_algorithm()
 
-        # Przekaż wyniki do AlgorithmPage
+
         algorithm_page = controller.frames["AlgorithmPage"]
         algorithm_page.update_plot(len(score_arr), score_arr, best_solution)
         controller.show_frame("AlgorithmPage")
@@ -219,11 +213,10 @@ class AlgorithmPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
-        # Konfiguracja układu
+  
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.configure(bg="#2C2C2C")  
-        # Wykres
         self.figure, self.ax = plt.subplots(figsize=(6, 4))
         self.ax.set_title("Zmiana funkcji celu w iteracjach")
         self.ax.set_xlabel("Iteracje")
@@ -235,36 +228,36 @@ class AlgorithmPage(tk.Frame):
         canvas_widget = self.canvas.get_tk_widget()
         canvas_widget.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Etykieta dla najlepszego wyniku
+
         self.best_result_label = ttk.Label(self, text="Najlepszy wynik: ---", font=("Arial", 12))
         self.best_result_label.grid(row=1, column=0, padx=10, pady=5, sticky="w")
 
-        # Etykieta dla wybranego wektora platform
+
         self.selected_platforms_label = ttk.Label(self, text="Wybrane platformy: ---", font=("Arial", 12), wraplength=800)
         self.selected_platforms_label.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 
-        # Powrót do wyboru
+
         back_button = ttk.Button(self, text="Powrót", command=lambda: controller.show_frame("Choosing_page"))
         back_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
 
     def update_plot(self, generations, costs, best_solution):
-        # Aktualizacja wykresu
+
         self.line.set_data(range(generations), costs)
         self.ax.set_xlim(0, generations - 1)
         self.ax.set_ylim(min(costs) - 5, max(costs) + 5)
         self.canvas.draw()
 
-        # Wyświetlenie najlepszego wyniku
+
         self.best_result_label.config(text=f"Najlepszy wynik: {best_solution.score:.4f}")
 
-        # Wyświetlenie wybranych platform
+
         platform_titles = [platform.title for platform in best_solution.platforms]
         self.selected_platforms_label.config(
             text=f"Wybrane platformy: {', '.join(platform_titles)}"
         )
 
 
-# Uruchomienie aplikacji
+
 if __name__ == "__main__":
     app = tkinterApp()
     app.mainloop()
